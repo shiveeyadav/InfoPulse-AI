@@ -10,8 +10,8 @@ from backend.pdf_reader import read_pdf
 
 load_dotenv()
 
-gemini_api_key = os.getenv("GEMINI_API_KEY")
-tavily_api_key = os.getenv("TAVILY_API_KEY")
+gemini_api_key = st.secrets.get("GEMINI_API_KEY")
+tavily_api_key = st.secrets.get("TAVILY_API_KEY")
 
 st.set_page_config(
     page_title="InfoPulse AI",
