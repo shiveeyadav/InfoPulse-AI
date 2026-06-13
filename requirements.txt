@@ -3,3 +3,4 @@ google-genai
 tavily-python
 python-dotenv
 pypdf
+streamlit-mic-recorder

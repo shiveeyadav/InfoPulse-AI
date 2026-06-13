@@ -2,7 +2,7 @@
 
 ## Overview
 
-InfoPulse AI is a real-time AI-powered search assistant that combines Large Language Models (LLMs) with live web search to provide fresh, reliable, and source-backed answers.
+InfoPulse AI is a real-time AI-powered search assistant featuring web search, research mode, fact checking, PDF chat, and voice interaction.
 
 Unlike traditional chatbots with outdated knowledge, InfoPulse AI retrieves current information from the web and generates intelligent responses using Gemini AI.
 
@@ -18,6 +18,8 @@ Unlike traditional chatbots with outdated knowledge, InfoPulse AI retrieves curr
 * Source Citations
 * Modern Professional UI
 * Modular Backend Architecture
+* Voice Assistant
+* Speech-to-Text Input
 
 ---
 

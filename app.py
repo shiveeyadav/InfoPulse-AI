@@ -3,15 +3,23 @@ import streamlit as st
 from dotenv import load_dotenv
 from google import genai
 from tavily import TavilyClient
+from streamlit_mic_recorder import speech_to_text
 
 from backend.search import search_web
 from backend.llm import generate_answer
 from backend.pdf_reader import read_pdf
 
 load_dotenv()
+try:
+    gemini_api_key = st.secrets["GEMINI_API_KEY"]
+except Exception:
+    gemini_api_key = os.getenv("GEMINI_API_KEY")
 
-gemini_api_key = st.secrets.get("GEMINI_API_KEY")
-tavily_api_key = st.secrets.get("TAVILY_API_KEY")
+try:
+    tavily_api_key = st.secrets["TAVILY_API_KEY"]
+except Exception:
+    tavily_api_key = os.getenv("TAVILY_API_KEY")
+
 
 st.set_page_config(
     page_title="InfoPulse AI",
@@ -147,11 +155,11 @@ div[data-testid="stSidebar"] {
 """, unsafe_allow_html=True)
 
 if not gemini_api_key:
-    st.error("GEMINI_API_KEY is missing. Please add it in your .env file.")
+    st.error("GEMINI_API_KEY is missing. Please add it in your .env file or Streamlit Secrets.")
     st.stop()
 
 if not tavily_api_key:
-    st.error("TAVILY_API_KEY is missing. Please add it in your .env file.")
+    st.error("TAVILY_API_KEY is missing. Please add it in your .env file or Streamlit Secrets.")
     st.stop()
 
 client = genai.Client(api_key=gemini_api_key)
@@ -160,7 +168,7 @@ tavily = TavilyClient(api_key=tavily_api_key)
 with st.sidebar:
     st.markdown('<div class="sidebar-title">🔎 InfoPulse AI</div>', unsafe_allow_html=True)
     st.markdown(
-        '<div class="sidebar-text">A real-time AI search assistant with web search, fact-checking, research mode, and PDF support.</div>',
+        '<div class="sidebar-text">A real-time AI search assistant with web search, fact-checking, research mode, PDF support, and voice input.</div>',
         unsafe_allow_html=True
     )
 
@@ -191,7 +199,7 @@ with st.sidebar:
 
 st.markdown("""
 <div class="hero">
-    <div class="badge">Real-Time Search • AI Chat • Fact Check • PDF Assistant</div>
+    <div class="badge">Real-Time Search • AI Chat • Fact Check • PDF Assistant • Voice Input</div>
     <div class="hero-title">InfoPulse AI</div>
     <div class="hero-subtitle">
         A professional AI assistant that gives fresh, reliable, and source-backed answers.
@@ -199,7 +207,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-col1, col2, col3 = st.columns(3)
+col1, col2, col3, col4 = st.columns(4)
 
 with col1:
     st.markdown("""
@@ -214,7 +222,7 @@ with col2:
     st.markdown("""
     <div class="feature-card">
         <div class="card-icon">✅</div>
-        <div class="card-title">Fact Check Mode</div>
+        <div class="card-title">Fact Check</div>
         <div class="card-text">Checks claims using web sources and explains reliability.</div>
     </div>
     """, unsafe_allow_html=True)
@@ -225,6 +233,15 @@ with col3:
         <div class="card-icon">📄</div>
         <div class="card-title">PDF Chat</div>
         <div class="card-text">Upload a PDF and ask questions from its content.</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with col4:
+    st.markdown("""
+    <div class="feature-card">
+        <div class="card-icon">🎙️</div>
+        <div class="card-title">Voice Input</div>
+        <div class="card-text">Ask questions using your voice instead of typing.</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -305,7 +322,7 @@ PDF content:
 st.markdown('<div class="chat-panel">', unsafe_allow_html=True)
 st.markdown('<div class="chat-heading">Ask InfoPulse AI</div>', unsafe_allow_html=True)
 st.markdown(
-    '<div class="chat-subheading">Choose a mode from the sidebar and ask your question.</div>',
+    '<div class="chat-subheading">Choose a mode from the sidebar, then type or speak your question.</div>',
     unsafe_allow_html=True
 )
 
@@ -313,7 +330,22 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.write(message["content"])
 
-user_question = st.chat_input("Type your question here...")
+st.markdown("### 🎙️ Voice Assistant")
+
+voice_text = speech_to_text(
+    language="en",
+    start_prompt="🎙️ Start Recording",
+    stop_prompt="⏹️ Stop Recording",
+    just_once=True,
+    use_container_width=True
+)
+
+if voice_text:
+    st.success(f"You said: {voice_text}")
+
+typed_question = st.chat_input("Type your question here...")
+
+user_question = voice_text if voice_text else typed_question
 
 if user_question:
     st.session_state.messages.append({"role": "user", "content": user_question})
@@ -383,6 +415,6 @@ if user_question:
 st.markdown('</div>', unsafe_allow_html=True)
 
 st.markdown(
-    '<div class="footer">Built with Python • Streamlit • Gemini API • Tavily Search API</div>',
+    '<div class="footer">Built with Python • Streamlit • Gemini API • Tavily Search API • Voice Assistant</div>',
     unsafe_allow_html=True
 )
